@@ -1,0 +1,49 @@
+# название моего workflow
+name: Go CI/CD test
+
+# тригеры, workflow запускается по git push в ветку main
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  # ТЕСТИРОВАНИЕ НА РАЗНЫХ ОС
+  test:
+    # юзаем matrix strategy для тестирования на разных ОС
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+    # шаг 1: ПОДГОТОВКА - получение кода
+    - uses: actions/checkout@v3 # action для клонирования кода из репо
+
+    # шаг 2: установка зависисмотей
+    - name: Set up Go
+      uses: actions/setup-go@v4 # action для устаноки go
+      with:
+        go-version: '1.22'
+
+    # шаг 3: билд
+    - name: Build
+      run: go build -v ./...
+
+    # шаг 4: прогон тестов
+    - name: Test
+      run: go test -v ./...
+
+  # деплой на HEROKU (только после успешных тестов)
+  deploy:
+    needs: test  #  зависит от job test
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3 # action для деплоя на хироку
+
+    - name: Deploy to Heroku
+      uses: akhileshns/heroku-deploy@v3.12.14
+      with:
+        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+        heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+        heroku_email: ${{ secrets.HEROKU_EMAIL }}
