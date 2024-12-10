@@ -15,14 +15,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func sumHandler(w http.ResponseWriter, r *http.Request) {
-    // Get query parameters
     query := r.URL.Query()
 
-    // Get a and b parameters
     aStr := query.Get("a")
     bStr := query.Get("b")
 
-    // Convert string to int
     a, err := strconv.Atoi(aStr)
     if err != nil {
         http.Error(w, "Parameter 'a' must be an integer", http.StatusBadRequest)
