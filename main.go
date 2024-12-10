@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
     "net/http"
+		"os"
     "strconv"
 )
 
@@ -38,8 +39,12 @@ func sumHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+		port := os.Getenv("PORT")
+		if port == "" {
+			port = "8080"
+		}
     http.HandleFunc("/", handler)
     http.HandleFunc("/sum", sumHandler)
-    fmt.Println("Server starting on port 8080...")
-    http.ListenAndServe(":8080", nil)
+    fmt.Printf("Server starting on port %s...\n", port)
+    http.ListenAndServe(":" + port, nil)
 }
